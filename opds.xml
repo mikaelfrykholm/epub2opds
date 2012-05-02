@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?python
+import datetime
+updated = datetime.datetime.utcnow()
+updated = updated.replace(microsecond=0) #work around fbreader bug http://old.fbreader.org/mantis/view.php?id=483
+?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:py="http://genshi.edgewall.org/">
+  <title>Apabooks</title>
+  <id>urn:uuid:1c3d0b0d-3182-4a92-a1c2-ec2da21642d8</id>
+  <updated>${updated.isoformat()}</updated>
+  <author>
+    <name>Mikael Frykholm</name>
+    <uri>http://mikael.frykholm.com</uri>
+    <email>mikael@frykholm.com</email>
+
+  </author>  
+  <link rel="start" href="opds.atom" type="application/atom+xml; profile=opds-catalog; kind=acquisition"/>
+  <link rel="self" href="opds.atom" type="application/atom+xml; profile=opds-catalog; kind=acquisition"/>
+  <entry py:for="book in books"> 
+    <id>urn:uuid:${book['uuid']}</id>
+    <title>${book['title']}</title>
+    <author><name>${book['creator']}</name></author>
+    <updated>${updated.isoformat()}</updated>
+    <link type="application/epub+zip"
+          rel="http://opds-spec.org/acquisition/open-access" 
+          href="${book['filename']}"/>
+    <content type="text">${book['description']}</content>
+<link type="image/jpg" href="${book['coverpath']}" rel="http://opds-spec.org/image"/>
+  </entry>
+</feed>
+ 

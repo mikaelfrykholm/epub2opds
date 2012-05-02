@@ -1,0 +1,2 @@
+epub2opds
+Run on a collection of epub books to extract metadata and images. Generates an opds xml file and a directory containing the images to be served by a web server.
