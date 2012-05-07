@@ -24,10 +24,13 @@ def get_epub_info(fname):
     tree = ElementTree.fromstring(cf)
     p = tree.find('pkg:metadata',namespaces=ns)
     manifest = tree.find('pkg:manifest',namespaces=ns)
-    import pdb;pdb.set_trace()
     coverid = p.findall('pkg:meta/[@name="cover"]',namespaces=ns)[0].attrib['content']
     coverpath = manifest.find('pkg:item[@id="%s"]'%coverid, namespaces=ns).attrib['href']    
-    cover=zip.read(coverpath)
+    try:
+       cover=zip.read(coverpath)
+    except(KeyError):
+        cover=None
+
     # repackage the data
     res = {}
     res['filename'] = fname
@@ -37,7 +40,12 @@ def get_epub_info(fname):
     for name in ['title','language','creator','date','identifier','description']:
         if p.find('dc:'+name, namespaces=ns) is not None:
             res[name] = p.find('dc:'+name, namespaces=ns).text
-    res['uuid'] = p.find('dc:identifier[@pkg:scheme="uuid"]', namespaces=ns).text
+        else:
+            res[name] = None
+    if p.find('dc:identifier[@pkg:scheme="uuid"]', namespaces=ns) is not None:
+        res['uuid'] = p.find('dc:identifier[@pkg:scheme="uuid"]', namespaces=ns).text
+    else:
+        res['uuid'] = None
     return res
 
 def generate_opds(books, output_dir):
@@ -50,7 +58,7 @@ def generate_opds(books, output_dir):
         for book in books:
             cpath = os.path.join(output_dir, '%s.jpg'%book['identifier'])
             book['coverpath'] = "%s.jpg"%book['identifier']
-            if not os.path.exists(cpath):
+            if not os.path.exists(cpath) and book['cover']:
                 cover = open(cpath,'wb')
                 cover.write(book['cover'])
                 cover.close()
@@ -69,3 +77,4 @@ if __name__ == "__main__":
     for path in find_epubs(sys.argv[1]):
         books.append(get_epub_info(path))
     generate_opds(books, '.covers')
+    print("Generated feed for %d books."%len(books))
