@@ -1,2 +1,12 @@
 epub2opds
 Run on a collection of epub books to extract metadata and images. Generates an opds xml file and a directory containing the images to be served by a web server.
+
+Prerequisites are python3 branch of genshii and python3.
+
+
+Usage
+-----
+
+$epub.py MY_DIR_OF_BOOKS/
+Generated feed for 4 books.
+
