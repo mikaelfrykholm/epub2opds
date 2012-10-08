@@ -24,7 +24,7 @@ updated = updated.replace(microsecond=0) #work around fbreader bug http://old.fb
     <updated>${updated.isoformat()}</updated>
     <link type="application/epub+zip"
           rel="http://opds-spec.org/acquisition/open-access" 
-          href="${book['filename']}"/>
+          href="${book['wwwpath']}"/>
     <content type="text">${book['description']}</content>
 <link type="image/jpg" href="${book['coverpath']}" rel="http://opds-spec.org/image"/>
   </entry>

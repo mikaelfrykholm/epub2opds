@@ -38,8 +38,11 @@ def get_epub_info(fname):
     tree = ElementTree.fromstring(cf)
     p = tree.find('pkg:metadata',namespaces=ns)
     manifest = tree.find('pkg:manifest',namespaces=ns)
-    coverid = p.findall('pkg:meta/[@name="cover"]',namespaces=ns)[0].attrib['content']
-    coverpath = manifest.find('pkg:item[@id="%s"]'%coverid, namespaces=ns).attrib['href']    
+    try:
+        coverid = p.findall('pkg:meta/[@name="cover"]',namespaces=ns)[0].attrib['content']
+        coverpath = manifest.find('pkg:item[@id="%s"]'%coverid, namespaces=ns).attrib['href']    
+    except(IndexError,AttributeError):
+        coverpath=None
     try:
        cover=zip.read(coverpath)
     except(KeyError):
@@ -60,9 +63,10 @@ def get_epub_info(fname):
         res['uuid'] = p.find('dc:identifier[@pkg:scheme="uuid"]', namespaces=ns).text
     else:
         res['uuid'] = None
+    zip.close()
     return res
 
-def generate_opds(books, output_dir):
+def generate_opds(books, output_dir, common_path):
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
         f = open('opds.atom', 'w')
@@ -71,11 +75,12 @@ def generate_opds(books, output_dir):
         tmpl_vars = {'books': books}                     
         for book in books:
             cpath = os.path.join(output_dir, '%s.jpg'%book['identifier'])
-            book['coverpath'] = "%s.jpg"%book['identifier']
+            book['coverpath'] = ".covers/%s.jpg"%book['identifier']
             if not os.path.exists(cpath) and book['cover']:
                 cover = open(cpath,'wb')
                 cover.write(book['cover'])
                 cover.close()
+            book['wwwpath'] = os.path.relpath(book['filename'],common_path)
         return f.write(tmpl.generate(**tmpl_vars).render())
 
 def find_epubs(dir):
@@ -89,6 +94,7 @@ if __name__ == "__main__":
     import sys
     books = []
     for path in find_epubs(sys.argv[1]):
+        print(path)
         books.append(get_epub_info(path))
-    generate_opds(books, '.covers')
+    generate_opds(books, '.covers', sys.argv[1])
     print("Generated feed for %d books."%len(books))
