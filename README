@@ -3,6 +3,11 @@ Run on a collection of epub books to extract metadata and images. Generates an o
 
 Prerequisites are python3 branch of genshii and python3.
 
+Installation
+--------------
+sudo apt-get install python3-setuptools
+sudo easy_install3 -U "Genshi==dev"
+git clone git://github.com/mikaelfrykholm/epub2opds.git
 
 Usage
 -----
